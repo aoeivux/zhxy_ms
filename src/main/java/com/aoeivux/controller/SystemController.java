@@ -10,6 +10,7 @@ import com.aoeivux.service.TeacherService;
 import com.aoeivux.util.CreateVerifiCodeImage;
 import com.aoeivux.util.JwtHelper;
 import com.aoeivux.util.Result;
+import com.aoeivux.util.ResultCodeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import javax.imageio.ImageIO;
@@ -34,10 +35,39 @@ public class SystemController {
 
     @GetMapping("/getInfo")
     public Result getInfo(@RequestHeader("token") String token){
+        // 判断session中的token是否过期
         boolean expiration = JwtHelper.isExpiration(token);
+        if(expiration){
+            return Result.build(null, ResultCodeEnum.CODE_ERROR);
+        }
 
-        return Result.ok();
+        // 从token中解析出用户id和用户类型
+        Long userId = JwtHelper.getUserId(token);
+        Integer userType = JwtHelper.getUserType(token);
+        // map存储返回的Result对象
+        Map<String, Object> map = new LinkedHashMap<>();
+        switch(userType){
+            case 1:
+                Admin admin = adminService.getById(userId);
+                map.put("userType", userType);
+                map.put("user", admin);
+                break;
+            case 2:
+                Student student = studentService.getById(userId);
+                map.put("userType", userType);
+                map.put("user", student);
+                break;
+            case 3:
+                Teacher teacher = teacherService.getById(userId);
+                map.put("userType", userType);
+                map.put("user", teacher);
+                break;
+        }
+
+        return Result.ok(map);
     }
+
+
 
     @PostMapping("/login")
     public Result login(@RequestBody LoginForm loginForm, HttpServletRequest request){

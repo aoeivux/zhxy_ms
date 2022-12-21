@@ -1,4 +1,4 @@
 package com.aoeivux.controller;
 
-public class ClassesController {
+public class ClazzController {
 }
