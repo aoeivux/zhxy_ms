@@ -34,7 +34,7 @@ public class SystemController {
 
     @GetMapping("/getInfo")
     public Result getInfo(@RequestHeader("token") String token){
-        boolean expiration = JwtHelper.isExpiration(token);
+        boolean expiration = JwtHelper.isExpiration(token);s
 
         return Result.ok();
     }
