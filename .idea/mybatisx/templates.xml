@@ -37,8 +37,8 @@
             <option name="tableUIInfoList">
               <list>
                 <TableUIInfo>
-                  <option name="className" value="TbAdmin" />
-                  <option name="tableName" value="tb_admin" />
+                  <option name="className" value="TbTeacher" />
+                  <option name="tableName" value="tb_teacher" />
                 </TableUIInfo>
               </list>
             </option>

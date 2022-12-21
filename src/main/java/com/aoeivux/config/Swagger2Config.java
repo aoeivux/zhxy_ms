@@ -1,4 +1,4 @@
-package com.aoeivux.util;
+package com.aoeivux.config;
 
 import com.google.common.base.Predicates;
 import io.swagger.annotations.ApiOperation;
