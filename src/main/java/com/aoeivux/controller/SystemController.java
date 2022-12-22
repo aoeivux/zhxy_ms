@@ -10,17 +10,27 @@ import com.aoeivux.service.TeacherService;
 import com.aoeivux.util.CreateVerifiCodeImage;
 import com.aoeivux.util.JwtHelper;
 import com.aoeivux.util.Result;
+import com.aoeivux.util.ResultCodeEnum;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
+@Api(tags = "系统控制器")
 @RestController
 @RequestMapping("sms/system")
 public class SystemController {
@@ -31,13 +41,72 @@ public class SystemController {
     @Autowired
     private TeacherService teacherService;
 
+    // /sms/system/headerImgUpload
+    @ApiOperation("文件上传接口")
+    @PostMapping("/headerImgUpload")
+    public Result headerImgUpload(
+            @ApiParam("头像文件") @RequestPart("multipartFile") MultipartFile multipartFile
+            )
+    {
+        // 保存图片
+        String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+        String originalFilename = multipartFile.getOriginalFilename();
+        int lastIndexOf = originalFilename.lastIndexOf(".");
+        String newFileName = uuid.concat(originalFilename.substring(lastIndexOf));
+
+        // String realPath = httpServletRequest.getRealPath("public/upload/"); //内置tomcat无法指定准确位置,需要指定云服务器图片位置或者本地绝对位置
+        //
+        String realPath = "D:/Dev/java_projects/zhxy_ms/target/classes/public/upload/";
+        String path = realPath.concat(newFileName);
+        System.out.println(path);
+        try {
+            multipartFile.transferTo(new File(path));
+        } catch (IOException | IllegalStateException e) {
+            throw new RuntimeException(e);
+        }
+
+        String resPath="upload/".concat(newFileName);
+        // 响应图片路径
+        return Result.ok(resPath);
+    }
+
+
 
     @GetMapping("/getInfo")
     public Result getInfo(@RequestHeader("token") String token){
-        boolean expiration = JwtHelper.isExpiration(token);s
 
-        return Result.ok();
+        // 判断session中的token是否过期
+        boolean expiration = JwtHelper.isExpiration(token);
+        if(expiration){
+            return Result.build(null, ResultCodeEnum.CODE_ERROR);
+        }
+
+        // 从token中解析出用户id和用户类型
+        Long userId = JwtHelper.getUserId(token);
+        Integer userType = JwtHelper.getUserType(token);
+        // map存储返回的Result对象
+        Map<String, Object> map = new LinkedHashMap<>();
+        switch(userType){
+            case 1:
+                Admin admin = adminService.getById(userId);
+                map.put("userType", userType);
+                map.put("user", admin);
+                break;
+            case 2:
+                Student student = studentService.getById(userId);
+                map.put("userType", userType);
+                map.put("user", student);
+                break;
+            case 3:
+                Teacher teacher = teacherService.getById(userId);
+                map.put("userType", userType);
+                map.put("user", teacher);
+                break;
+        }
+
+        return Result.ok(map);
     }
+
 
     @PostMapping("/login")
     public Result login(@RequestBody LoginForm loginForm, HttpServletRequest request){
@@ -125,6 +194,7 @@ public class SystemController {
             throw new RuntimeException(e);
         }
     }
+
 
 
 }

@@ -8,10 +8,13 @@ import com.aoeivux.util.MD5;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.mapper.Mapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.management.Query;
 
@@ -28,5 +31,18 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         Admin admin = baseMapper.selectOne(queryWrapper);
 
         return admin;
+    }
+
+    @Override
+    public IPage<Admin> getAdminByOpr(Page<Admin> page, String adminName) {
+        QueryWrapper<Admin> queryWrapper = new QueryWrapper<>();
+
+        if (!StringUtils.isEmpty(adminName)) {
+            queryWrapper.like("name", adminName);
+        }
+        queryWrapper.orderByAsc("id");
+        Page<Admin> adminPage = baseMapper.selectPage(page, queryWrapper);
+        return adminPage;
+
     }
 }

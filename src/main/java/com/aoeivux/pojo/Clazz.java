@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("tb_classes")
-public class Classes {
+@TableName("tb_clazz")
+public class Clazz {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
     private String name;

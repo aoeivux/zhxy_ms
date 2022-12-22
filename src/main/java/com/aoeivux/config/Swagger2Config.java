@@ -57,7 +57,9 @@ public class Swagger2Config {
                 .apiInfo(webApiInfo())
                 .select()
                 //可以测试请求头中：输入token
-                .apis(RequestHandlerSelectors.withClassAnnotation(ApiOperation.class))
+//                .apis(RequestHandlerSelectors.withClassAnnotation(ApiOperation.class))
+                //还可以通过基础包扫描注册
+                .apis(RequestHandlerSelectors.basePackage("com.aoeivux"))
                 //过滤掉admin路径下的所有页面
                 //.paths(Predicates.and(PathSelectors.regex("/sms/.*")))
                 //过滤掉所有error或error.*页面
